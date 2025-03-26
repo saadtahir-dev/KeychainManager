@@ -1,7 +1,3 @@
-Sure! Below is a `README.md` file for your `KeychainManager` Swift package. You can copy this and use it in your GitHub repository.
-
----
-
 # KeychainManager
 
 **KeychainManager** is a Swift-based utility that simplifies interacting with the iOS Keychain to securely store, retrieve, update, and delete sensitive data. It supports both synchronous and asynchronous operations and is compatible with `Codable` types for easy serialization.

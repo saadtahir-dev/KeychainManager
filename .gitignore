@@ -6,3 +6,18 @@ DerivedData/
 .swiftpm/configuration/registries.json
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
 .netrc
+
+# .gitignore file for Swift projects
+
+# Xcode
+*.xcuserstate
+*.xcworkspace
+DerivedData/
+
+# Swift Package Manager
+/.build/
+/Packages/
+
+# User-specific
+*.swp
+*.swo

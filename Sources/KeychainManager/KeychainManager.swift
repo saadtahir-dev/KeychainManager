@@ -175,7 +175,7 @@ extension KeychainManager {
             return (result as? Data)
         }
     }
-
+    
     
     /// Deletes an item from the Keychain for a given service and account.
     ///
@@ -257,12 +257,12 @@ extension KeychainManager {
     ///   - completion: A closure that is called once the operation is completed. It returns a `Result<Bool, Error>` indicating whether the operation was successful or not.
     /// - Returns: A `Bool` indicating if the operation was started successfully. If it returns `false`, the operation failed before it could begin.
     @discardableResult
-    func save<T: Codable>(_ item: T,
-                          service: String,
-                          account: String,
-                          accessGroup: String? = nil,
-                          accessPermission: CFString? = nil,
-                          completion: ((Result<Bool, Error>) -> ())? = nil) -> Bool {
+    public func save<T: Codable>(_ item: T,
+                                 service: String,
+                                 account: String,
+                                 accessGroup: String? = nil,
+                                 accessPermission: CFString? = nil,
+                                 completion: ((Result<Bool, Error>) -> ())? = nil) -> Bool {
         logger.debug("Starting to save data in keychain: service: \(service), account: \(account)")
         
         if let validationError = _validateKeychainParameters(service: service, account: account, accessGroup: accessGroup) {
@@ -302,11 +302,11 @@ extension KeychainManager {
     ///   - accessGroup: (Optional) An access group identifier for shared Keychain access across apps. Default is `nil`.
     ///   - accessPermission: (Optional) Specifies the access control for the Keychain item (default is `nil`).
     /// - Returns: A `Result<Bool, Error>` indicating whether the save operation was successful (`true`) or failed (`false`).
-    func save<T: Codable>(_ item: T,
-                          service: String,
-                          account: String,
-                          accessGroup: String? = nil,
-                          accessPermission: CFString? = nil) async -> Result<Bool, Error> {
+    public func save<T: Codable>(_ item: T,
+                                 service: String,
+                                 account: String,
+                                 accessGroup: String? = nil,
+                                 accessPermission: CFString? = nil) async -> Result<Bool, Error> {
         logger.debug("Starting to save data in keychain: service: \(service), account: \(account)")
         
         // Validate parameters
@@ -322,7 +322,7 @@ extension KeychainManager {
             logger.debug("Item saved successfully: service: \(service), account: \(account)")
             
             return .success(true)
-
+            
         } catch KeychainError.OSStatusError(let error_) {
             logger.error("Failed to save item to Keychain: \(error_)")
             return .failure(KeychainError.OSStatusError(error_))
@@ -332,8 +332,6 @@ extension KeychainManager {
             return .failure(error)
         }
     }
-
-    
 }
 
 extension KeychainManager {
@@ -347,11 +345,11 @@ extension KeychainManager {
     ///   - accessPermission: Specifies the access control for the Keychain item (default is `nil`).
     ///   - completion: A closure that is called once the operation is completed. It returns a `Result<T, Error>` with the decoded item or an error if it fails.
     /// - Returns: A `Codable` indicating whether the operation was successful. If it returns `nil`, no data was found or the decoding failed.
-    func read<T: Codable>(for service: String,
-                          account: String,
-                          accessGroup: String? = nil,
-                          accessPermission: CFString? = nil,
-                          completion: ((Result<T, Error>) -> ())? = nil) -> T? {
+    public func read<T: Codable>(for service: String,
+                                 account: String,
+                                 accessGroup: String? = nil,
+                                 accessPermission: CFString? = nil,
+                                 completion: ((Result<T, Error>) -> ())? = nil) -> T? {
         logger.debug("Reading item from keychain: service: \(service), account: \(account)")
         
         if let validationError = _validateKeychainParameters(service: service, account: account, accessGroup: accessGroup) {
@@ -392,10 +390,10 @@ extension KeychainManager {
     /// - Returns: A `Result<T, Error>` where:
     ///     - `.success(item)` if the item was found and decoded successfully.
     ///     - `.failure(error)` if an error occurred during reading or decoding.
-    func read<T: Codable>(for service: String,
-                          account: String,
-                          accessGroup: String? = nil,
-                          accessPermission: CFString? = nil) async -> Result<T, Error> {
+    public func read<T: Codable>(for service: String,
+                                 account: String,
+                                 accessGroup: String? = nil,
+                                 accessPermission: CFString? = nil) async -> Result<T, Error> {
         logger.debug("Reading item from keychain: service: \(service), account: \(account)")
         
         if let validationError = _validateKeychainParameters(service: service, account: account, accessGroup: accessGroup) {
@@ -419,7 +417,6 @@ extension KeychainManager {
             return .failure(error)
         }
     }
-
 }
 
 extension KeychainManager {
@@ -433,11 +430,11 @@ extension KeychainManager {
     ///   - accessPermission: Specifies the access control for the Keychain item (default is `nil`).
     ///   - completion: A closure that is called once the operation is completed. It returns a `Result<Bool, Error>` indicating the success or failure of the operation.
     /// - Returns: A `Bool` indicating whether the deletion operation was successful. If it returns `false`, the operation failed or no item was found.
-    func delete(for service: String,
-                account: String,
-                accessGroup: String? = nil,
-                accessPermission: CFString? = nil,
-                completion: ((Result<Bool, Error>) -> ())? = nil) {
+    public func delete(for service: String,
+                       account: String,
+                       accessGroup: String? = nil,
+                       accessPermission: CFString? = nil,
+                       completion: ((Result<Bool, Error>) -> ())? = nil) {
         logger.debug("Deleting item from keychain: service: \(service), account: \(account)")
         
         if let validationError = _validateKeychainParameters(service: service, account: account, accessGroup: accessGroup) {
@@ -478,10 +475,10 @@ extension KeychainManager {
     ///     - `.success(true)` if the deletion was successful.
     ///     - `.failure(error)` if an error occurred.
     @discardableResult
-    func delete(for service: String,
-                account: String,
-                accessGroup: String? = nil,
-                accessPermission: CFString? = nil) async -> Result<Bool, Error> {
+    public func delete(for service: String,
+                       account: String,
+                       accessGroup: String? = nil,
+                       accessPermission: CFString? = nil) async -> Result<Bool, Error> {
         logger.debug("Deleting item from keychain: service: \(service), account: \(account)")
         
         if let validationError = _validateKeychainParameters(service: service, account: account, accessGroup: accessGroup) {

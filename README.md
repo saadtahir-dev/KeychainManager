@@ -2,13 +2,7 @@
 
 **KeychainManager** is a Swift-based utility that simplifies interacting with the iOS Keychain to securely store, retrieve, update, and delete sensitive data. It supports both synchronous and asynchronous operations and is compatible with `Codable` types for easy serialization.
 
-## Features
-- **Save** sensitive data securely in the Keychain.
-- **Read** data from the Keychain.
-- **Update** existing data in the Keychain.
-- **Delete** items from the Keychain.
-- Support for **Codable** types, making it easy to store and retrieve custom objects.
-- Provides both **completion handler** (asynchronous) and **Boolean return value** (synchronous) options.
+---
 
 ## Installation
 
@@ -21,6 +15,169 @@ To install **KeychainManager**, simply add it as a Swift Package Dependency.
 3. Enter the repository URL: `https://github.com/saadtahir-dev/KeychainManager.git`.
 4. Follow the prompts to integrate the package into your project.
 
+---
+
+## Features
+- **Singleton Design Pattern**: Provides a shared instance of `KeychainManager` for global access.
+- **Thread-Safety**: Ensures that all Keychain operations are performed in a thread-safe manner using `DispatchQueue`.
+- **Supports Codable**: Allows easy saving and reading of `Codable` items to and from the Keychain.
+- **Asynchronous and Synchronous Support**: The manager supports both asynchronous and synchronous versions of methods for saving, reading, updating, and deleting data.
+- **Access Permission Control**: Exposes a public `accessPermission` property that can be customized for different access permissions.
+- **Error Handling**: Provides comprehensive error handling, including specific errors like `KeychainError.itemNotFound`.
+  
+---
+
+## API Documentation
+
+### Properties
+
+- `logger`: A logger used for logging keychain operations for debugging and error reporting.
+- `keychainQueue`: A concurrent serial dispatch queue used for synchronizing Keychain operations.
+- `accessPermission`: Specifies the access control for Keychain items, defaulting to `kSecAttrAccessibleAlways`.
+
+### Error Handling
+
+`KeychainManager` defines the following custom `KeychainError` enum for error handling:
+
+- `OSStatusError`: Represents an error returned by Keychain APIs (e.g., `SecItemAdd`, `SecItemUpdate`).
+- `emptyService`: Returned when the service parameter is empty.
+- `emptyAccount`: Returned when the account parameter is empty.
+- `emptyAccessGroup`: Returned when the access group parameter is empty.
+- `itemNotFound`: Returned when an item is not found in the Keychain.
+
+### Methods
+
+#### Save
+
+##### Synchronous Save Method
+
+```swift
+@discardableResult
+func save<T: Codable>(_ item: T,
+                      service: String,
+                      account: String,
+                      accessGroup: String? = nil,
+                      accessPermission: CFString? = nil,
+                      completion: ((Result<Bool, Error>) -> ())? = nil) -> Bool
+```
+
+- **Parameters**:
+  - `item`: The `Codable` item to be saved.
+  - `service`: The service identifier for the item (e.g., app bundle identifier).
+  - `account`: The account associated with the item.
+  - `accessGroup`: An optional access group for shared access across apps.
+  - `accessPermission`: Specifies the access control for the item (default: `nil`).
+  - `completion`: A closure called with the result of the operation.
+
+- **Returns**: A `Bool` indicating whether the save operation started successfully.
+
+##### Asynchronous Save Method
+
+```swift
+func save<T: Codable>(_ item: T,
+                      service: String,
+                      account: String,
+                      accessGroup: String? = nil,
+                      accessPermission: CFString? = nil) async -> Result<Bool, Error>
+```
+
+- **Parameters**:
+  - `item`: The `Codable` item to be saved.
+  - `service`: The service identifier for the item.
+  - `account`: The account associated with the item.
+  - `accessGroup`: (Optional) An access group identifier.
+  - `accessPermission`: (Optional) Specifies the access control for the item.
+
+- **Returns**: A `Result<Bool, Error>` indicating the success or failure of the operation.
+
+#### Read
+
+##### Synchronous Read Method
+
+```swift
+func read<T: Codable>(for service: String,
+                      account: String,
+                      accessGroup: String? = nil,
+                      accessPermission: CFString? = nil,
+                      completion: ((Result<T, Error>) -> ())? = nil) -> T?
+```
+
+- **Parameters**:
+  - `service`: The service identifier for the item.
+  - `account`: The account associated with the item.
+  - `accessGroup`: An optional access group for shared access across apps.
+  - `accessPermission`: Specifies the access control for the Keychain item (default: `nil`).
+  - `completion`: A closure that is called once the operation is completed, returning the decoded `Codable` item.
+
+- **Returns**: The decoded `Codable` item from the Keychain, or `nil` if the item is not found.
+
+##### Asynchronous Read Method
+
+```swift
+func read<T: Codable>(for service: String,
+                      account: String,
+                      accessGroup: String? = nil,
+                      accessPermission: CFString? = nil) async -> Result<T, Error>
+```
+
+- **Parameters**:
+  - `service`: The service identifier for the item.
+  - `account`: The account associated with the item.
+  - `accessGroup`: (Optional) An access group identifier.
+  - `accessPermission`: (Optional) Specifies the access control for the item.
+
+- **Returns**: A `Result<T, Error>` with the decoded item or an error if the operation fails.
+
+#### Delete
+
+##### Synchronous Delete Method
+
+```swift
+func delete(for service: String,
+            account: String,
+            accessGroup: String? = nil,
+            accessPermission: CFString? = nil,
+            completion: ((Result<Bool, Error>) -> ())? = nil)
+```
+
+- **Parameters**:
+  - `service`: The service identifier for the item.
+  - `account`: The account associated with the item.
+  - `accessGroup`: (Optional) An access group identifier.
+  - `accessPermission`: Specifies the access control for the Keychain item.
+
+- **Returns**: A closure called once the operation is completed, indicating success or failure.
+
+##### Asynchronous Delete Method
+
+```swift
+func delete(for service: String,
+            account: String,
+            accessGroup: String? = nil,
+            accessPermission: CFString? = nil) async -> Result<Bool, Error>
+```
+
+- **Parameters**:
+  - `service`: The service identifier for the item.
+  - `account`: The account associated with the item.
+  - `accessGroup`: (Optional) An access group identifier.
+  - `accessPermission`: Specifies the access control for the Keychain item.
+
+- **Returns**: A `Result<Bool, Error>` indicating success or failure of the deletion operation.
+
+ #### Validation
+
+```swift
+private func _validateKeychainParameters(service: String, account: String, accessGroup: String?) -> KeychainError?
+```
+
+- **Parameters**:
+  - `service`: The service identifier for the Keychain item.
+  - `account`: The account identifier for the Keychain item.
+  - `accessGroup`: (Optional) The access group identifier.
+  
+- **Returns**: Returns a `KeychainError` if any of the parameters are empty, otherwise returns `nil`.
+  
 ---
 
 ## Usage
@@ -56,6 +213,18 @@ if isSaved {
 } else {
     print("Error saving data.")
 }
+
+// Using Async/Await
+let item = UserCredentials(username: "user123", password: "password123")
+Task {
+    let result = await KeychainManager.shared.save(item, service: "com.example.app", account: "user123")
+    switch result {
+    case .success(let success):
+        print("Item saved successfully: \(success)")
+    case .failure(let error):
+        print("Failed to save item: \(error.localizedDescription)")
+    }
+}
 ```
 
 ### 2. **Reading Data**
@@ -78,6 +247,17 @@ if let credentials: UserCredentials = KeychainManager.shared.read(for: "com.exam
     print("Successfully retrieved credentials: \(credentials.username), \(credentials.password)")
 } else {
     print("Error reading data.")
+}
+
+// Using Async/Await
+Task {
+    let result: Result<UserCredentials, Error> = await KeychainManager.shared.read(for: "com.example.app", account: "user123")
+    switch result {
+    case .success(let userCredentials):
+        print("Retrieved user credentials: \(userCredentials)")
+    case .failure(let error):
+        print("Failed to read item: \(error.localizedDescription)")
+    }
 }
 ```
 
@@ -105,6 +285,18 @@ if isUpdated {
 } else {
     print("Error updating data.")
 }
+
+// Using Async/Await
+let item = UserCredentials(username: "user123", password: "password123")
+Task {
+    let result = await KeychainManager.shared.save(item, service: "com.example.app", account: "user123")
+    switch result {
+    case .success(let success):
+        print("Item saved successfully: \(success)")
+    case .failure(let error):
+        print("Failed to save item: \(error.localizedDescription)")
+    }
+}
 ```
 
 ### 4. **Deleting Data**
@@ -122,71 +314,17 @@ KeychainManager.shared.delete(for: "com.example.myApp", account: "user123") { re
     }
 }
 
-// Using Bool return value
-let isDeleted = KeychainManager.shared.delete(for: "com.example.myApp", account: "user123")
-if isDeleted {
-    print("Data deleted successfully.")
-} else {
-    print("Error deleting data.")
+// Using Async/Await
+Task {
+    let result: Result<Bool, Error> = await KeychainManager.shared.delete(for: "com.example.app", account: "user123")
+    switch result {
+    case .success(let success):
+        print("Item deleted successfully: \(success)")
+    case .failure(let error):
+        print("Failed to delete item: \(error.localizedDescription)")
+    }
 }
 ```
-
----
-
-## API Documentation
-
-### `KeychainManager`
-
-The `KeychainManager` class provides thread-safe operations for interacting with the iOS Keychain.
-
-#### `shared`:
-A singleton instance of `KeychainManager`.
-
-```swift
-public class var shared: KeychainManager
-```
-
-#### `save<T: Codable>(_ item: T, service: String, account: String, accessGroup: String? = nil) -> Bool`
-Saves a `Codable` item to the Keychain.
-
-- **Parameters**:
-    - `item`: The `Codable` item to be saved.
-    - `service`: The service identifier for the Keychain item.
-    - `account`: The account associated with the Keychain item.
-    - `accessGroup`: (Optional) An access group identifier for shared Keychain access across apps.
-    
-- **Returns**: `Bool` indicating success (`true`) or failure (`false`).
-
-#### `read<T: Codable>(for service: String, account: String, accessGroup: String? = nil) -> T?`
-Reads a `Codable` item from the Keychain.
-
-- **Parameters**:
-    - `service`: The service identifier for the Keychain item.
-    - `account`: The account associated with the Keychain item.
-    - `accessGroup`: (Optional) An access group identifier for shared Keychain access across apps.
-    
-- **Returns**: The `Codable` item, or `nil` if not found.
-
-#### `delete(for service: String, account: String, accessGroup: String? = nil) -> Bool`
-Deletes an item from the Keychain.
-
-- **Parameters**:
-    - `service`: The service identifier for the Keychain item.
-    - `account`: The account associated with the Keychain item.
-    - `accessGroup`: (Optional) An access group identifier for shared Keychain access across apps.
-    
-- **Returns**: `Bool` indicating success (`true`) or failure (`false`).
-
----
-
-## Error Handling
-
-The `KeychainManager` class uses the following errors:
-
-- **`KeychainError.emptyService`**: The service parameter is empty.
-- **`KeychainError.emptyAccount`**: The account parameter is empty.
-- **`KeychainError.emptyAccessGroup`**: The access group parameter is empty (if provided).
-- **`KeychainError.unknown(String)`**: An unknown error occurred while interacting with the Keychain.
 
 ---
 

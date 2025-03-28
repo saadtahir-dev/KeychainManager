@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class KeychainManager {
+public final class KeychainManager {
     /// Logger
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "KeychainManager")
     
